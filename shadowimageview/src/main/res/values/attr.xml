@@ -5,6 +5,9 @@
         <attr name="shadowRound" format="dimension" />
         <attr name="shadowSrc" format="reference" />
         <attr name="shadowColor" format="color" />
+        <attr name="borderWidth" format="dimension" />
+        <attr name="borderColor" format="color" />
+        <attr name="isCircle" format="boolean" />
     </declare-styleable>
 
 </resources>

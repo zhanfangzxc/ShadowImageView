@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 import android.support.v7.graphics.Palette;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -48,6 +49,9 @@ public class ShadowImageView extends RelativeLayout {
     private int shadowRound = 0;
     private int shadowColor = -147483648;
     private boolean mInvalidat;
+    private int borderWidth = 0;
+    private int borderColor = -1;
+    private boolean isCircle = false;
 
     public ShadowImageView(Context context) {
         this(context, null);
@@ -77,6 +81,8 @@ public class ShadowImageView extends RelativeLayout {
             if (a.hasValue(R.styleable.ShadowImageView_shadowColor)) {
                 shadowColor = a.getColor(R.styleable.ShadowImageView_shadowColor, Color.parseColor("#8D8D8D"));
             }
+            borderColor = a.getColor(R.styleable.ShadowImageView_borderColor, -1);
+            borderWidth = a.getDimensionPixelSize(R.styleable.ShadowImageView_borderWidth, borderWidth);
         } else {
             float density = context.getResources().getDisplayMetrics().density;
             shadowRound = (int) (shadowRound * density);
@@ -90,13 +96,16 @@ public class ShadowImageView extends RelativeLayout {
         } else {
             roundImageView.setImageResource(imageresource);
         }
-
         if (this.shadowColor == Color.parseColor("#8D8D8D")) {
             this.shadowColor = -147483648;
         }
-
+        if (borderWidth != 0) {
+            roundImageView.setBorderWidth(borderWidth);
+        }
+        if (borderColor != -1) {
+            roundImageView.setBorderColor(borderColor);
+        }
         addView(roundImageView);
-
         getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -110,27 +119,42 @@ public class ShadowImageView extends RelativeLayout {
                     }
                     N = getChildCount();
                 }
-
                 ((RoundImageView) getChildAt(0)).setRound(shadowRound);
+                setBorder();
                 mInvalidat = true;
             }
         });
     }
 
+    /**
+     * 圆形的设置border
+     */
+    public void setBorder() {
+        if (shadowRound >= getChildAt(0).getWidth() / 2 || shadowRound >= getChildAt(0).getHeight() / 2) {
+            isCircle = true;
+        } else {
+            isCircle = false;
+        }
+        ((RoundImageView) getChildAt(0)).isCircle(isCircle);
+    }
+
     public void setImageResource(int resId) {
         ((RoundImageView) getChildAt(0)).setImageResource(resId);
+        setBorder();
         invalidate();
         mInvalidat = true;
     }
 
     public void setImageDrawable(Drawable drawable) {
         ((RoundImageView) getChildAt(0)).setImageDrawable(drawable);
+        setBorder();
         invalidate();
         mInvalidat = true;
     }
 
     public void setImageBitmap(Bitmap bitmap) {
         ((RoundImageView) getChildAt(0)).setImageBitmap(bitmap);
+        setBorder();
         invalidate();
         mInvalidat = true;
     }
@@ -147,9 +171,9 @@ public class ShadowImageView extends RelativeLayout {
                 radius = getChildAt(0).getWidth() / 2;
             }
         }
-
         this.shadowRound = radius;
         ((RoundImageView) getChildAt(0)).setRound(shadowRound);
+        setBorder();
         invalidate();
         mInvalidat = true;
     }

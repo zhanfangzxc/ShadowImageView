@@ -25,6 +25,8 @@ import android.graphics.Path;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
@@ -44,6 +46,12 @@ public class RoundImageView extends ImageView {
     private int roundWidth = 0;
     private int roundHeight = 0;
     private Paint paint2;
+    private RectF mBorderRect = new RectF();
+    private float mBorderRadius;
+    private final Paint mBorderPaint = new Paint();
+    private int mBorderWidth = 0;
+    private int mBorderColor = -1;
+    private boolean isCircle = false;
 
     public RoundImageView(Context context) {
         this(context, null);
@@ -66,15 +74,26 @@ public class RoundImageView extends ImageView {
 
         paint2 = new Paint();
         paint2.setXfermode(null);
+        initBorderPaint();
+    }
+
+    private void initBorderPaint() {
+        mBorderPaint.setStyle(Paint.Style.STROKE);
+        mBorderPaint.setAntiAlias(true);
+        mBorderPaint.setColor(mBorderColor);
+        mBorderPaint.setStrokeWidth(mBorderWidth);
     }
 
     public void setRound(int round) {
-        if(round > getWidth()/2 || round > getHeight()/2){
-            if(getWidth() > getHeight()){
-                round = getHeight()/2;
-            }else{
-                round = getWidth()/2;
+        if (round > getWidth() / 2 || round > getHeight() / 2) {
+            if (getWidth() > getHeight()) {
+                round = getHeight() / 2;
+            } else {
+                round = getWidth() / 2;
             }
+            isCircle = true;
+        } else {
+            isCircle = false;
         }
         this.roundHeight = round;
         this.roundWidth = round;
@@ -93,6 +112,47 @@ public class RoundImageView extends ImageView {
         drawRightDown(canvas2);
         canvas.drawBitmap(bitmap, 0, 0, paint2);
         bitmap.recycle();
+    }
+
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (isCircle) {
+            drawBorder(canvas);
+        }
+    }
+
+    private void drawBorder(Canvas canvas) {
+        mBorderRect.set(calculateBounds());
+        mBorderRadius = Math.min((mBorderRect.height() - mBorderWidth) / 2.0f, (mBorderRect.width() - mBorderWidth) / 2.0f) + mBorderWidth / 2;
+        canvas.drawCircle(mBorderRect.centerX(), mBorderRect.centerY(), mBorderRadius, mBorderPaint);
+    }
+
+    public void setBorderWidth(int borderWidth) {
+        mBorderWidth = borderWidth;
+        initBorderPaint();
+        invalidate();
+    }
+
+    public void setBorderColor(int borderColor) {
+        mBorderColor = borderColor;
+        initBorderPaint();
+        invalidate();
+    }
+
+    public void isCircle(boolean isCircle) {
+        this.isCircle = isCircle;
+        invalidate();
+    }
+
+    private RectF calculateBounds() {
+        int availableWidth = getWidth() - getPaddingLeft() - getPaddingRight();
+        int availableHeight = getHeight() - getPaddingTop() - getPaddingBottom();
+        int sideLength = Math.min(availableWidth, availableHeight);
+        float left = getPaddingLeft() + (availableWidth - sideLength) / 2f;
+        float top = getPaddingTop() + (availableHeight - sideLength) / 2f;
+        return new RectF(left, top, left + sideLength, top + sideLength);
     }
 
     private void drawLiftUp(Canvas canvas) {
@@ -134,5 +194,4 @@ public class RoundImageView extends ImageView {
         path.close();
         canvas.drawPath(path, paint);
     }
-
 }

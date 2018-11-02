@@ -10,7 +10,9 @@
         android:id="@+id/shadow"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        app:shadowRound="0dp"
+        app:borderColor="@color/colorAccent"
+        app:borderWidth="5dp"
+        app:shadowRound="150dp"
         app:shadowSrc="@mipmap/android0" />
 
     <android.support.v7.widget.AppCompatSeekBar
@@ -20,12 +22,12 @@
         android:max="500" />
 
     <com.yinglan.shadowimageview.ShadowImageView
-        android:layout_marginTop="20dp"
         android:id="@+id/shadowd"
         android:layout_width="300dp"
         android:layout_height="150dp"
+        android:layout_marginTop="20dp"
+        app:shadowColor="@color/colorPrimary"
         app:shadowRound="5dp"
-        app:shadowSrc="@mipmap/lotus"
-        app:shadowColor="@color/colorPrimary"/>
+        app:shadowSrc="@mipmap/lotus" />
 
 </LinearLayout>
